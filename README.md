@@ -1,197 +1,130 @@
 # 🧾 GSTSmart — AI-Powered GST Return Management System
 
-> A production-grade, full-stack SaaS platform for automated GST compliance, invoice parsing, and tax forecasting for Indian small businesses.
+> A production-grade, full-stack SaaS platform for automated GST compliance, hybrid AI invoice parsing, and advanced tax forecasting for Indian small businesses.
 
 ![Dashboard Preview](docs/screenshots/dashboard.png)
 
 ---
 
-## 🚀 Features
+## 🌟 Overview
 
-| Feature | Description |
-|---------|-------------|
-| 📄 **AI Invoice Parsing** | Extract invoice fields from PDF/images using OCR + regex pipeline |
-| 📊 **GST Calculation** | Auto CGST/SGST/IGST split, intra/inter-state detection, ITC calculation |
-| 📈 **Forecasting** | Prophet/ARIMA-based next-month GST liability prediction |
-| 📋 **Return Generation** | One-click GSTR-style monthly summary |
-| 🔐 **JWT Auth** | Role-based access: Admin, Accountant, Business Owner |
-| 💎 **Premium UI/UX** | Next-gen dark mode with glassmorphism, micro-animations, and 60 FPS transitions |
-| 📱 **Mobile Optimized** | Fully responsive design with sliding sidebar drawer for field use |
+**GSTSmart** is a comprehensive solution designed to simplify the complex world of GST compliance for Indian SMBs. By leveraging cutting-edge AI for automated data entry and sophisticated time-series models for tax forecasting, GSTSmart transforms raw invoices into actionable financial insights.
+
+Built with a focus on **visual excellence** and **operational reliability**, the platform features a premium glassmorphic interface, high-performance background processing, and a robust hybrid OCR pipeline.
+
+---
+
+## 🚀 Key Features
+
+| Feature | Technical Implementation |
+|---------|-------------------------|
+| 📄 **Hybrid AI Parsing** | **PyMuPDF** text extraction with **RapidOCR** fallback for scanned images. |
+| 📊 **Precision GST Engine** | Automated HSN-aware CGST/SGST/IGST splitting and ITC eligibility tracking. |
+| 📈 **Advanced Forecasting** | Dual-engine **Prophet + ARIMA** monthly GST liability predictions. |
+| 📋 **Return Management** | One-click GSTR-style summaries and multi-month return history. |
+| 📥 **Excel Data Export** | High-fidelity **.xlsx** reporting with custom styling and filtered exports. |
+| 🔐 **Enterprise Auth** | Secure **JWT-based** authentication with Role-Based Access Control (RBAC). |
+| 💎 **Premium UI/UX** | **Framer Motion** animations, **Tailwind CSS** glassmorphism, and **Recharts** analytics. |
+| 📱 **Mobile First** | Fully responsive architecture with a dedicated sliding sidebar for on-field usage. |
 
 ---
 
 ## 🛠 Tech Stack
 
-**Frontend:** React 18, Vite, Tailwind CSS, Recharts, React Hook Form, React Router  
-**Backend:** FastAPI, Beanie ODM, Pydantic v2, Python 3.11+  
-**Database:** MongoDB 7.0  
-**ML/AI:** Prophet/ARIMA (forecast), EasyOCR/Tesseract (parsing)  
-**DevOps:** Docker, Docker Compose  
+### Frontend
+- **Framework:** React 18 (Vite)
+- **Styling:** Tailwind CSS + Vanilla CSS
+- **Animations:** Framer Motion
+- **Visualization:** Recharts
+- **State Management:** React Context API + Hook Form
+
+### Backend
+- **Framework:** FastAPI (Python 3.11+)
+- **Database:** MongoDB 7.0 (Beanie ODM / Motor)
+- **Security:** JWT + Bcrypt (v3.2.2 compatibility layer)
+- **Task Mgmt:** Asynchronous I/O with Python `asyncio`
+
+### AI / Machine Learning
+- **OCR Engine:** RapidOCR (ONNX Runtime) + PyTesseract
+- **Document Rendering:** PyMuPDF (fitz)
+- **Time-Series:** Facebook Prophet + ARIMA
+- **Feature Extraction:** Regex-Hybrid NLP Pipeline
 
 ---
 
-## ⚡ Quick Start (Local)
+## ⚡ Quick Start
 
-### Prerequisites
-- Python 3.11+
-- Node.js 20+
-- MongoDB (local or Atlas)
-
-### 1. Clone & Setup
-
-```bash
-git clone <repo-url>
-cd gst-management-system
-cp .env.example .env
-```
-
-### 2. Backend
-
+### 1. Backend Setup
 ```bash
 cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Start MongoDB locally (or update MONGODB_URL in .env)
 uvicorn main:app --reload --port 8000
 ```
 
-### 3. Seed Demo Data
-
-```bash
-# From project root
-cd datasets
-python seed_data.py
-```
-
-This creates:
-- 3 demo users (admin, business owner, accountant)
-- Business profile for Raj Electronics
-- 60–90 synthetic invoices across 6 months
-- Monthly return records
-
-### 4. Frontend
-
+### 2. Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
-# Open http://localhost:5173
 ```
+
+### 3. Database
+Ensure **MongoDB** is running locally or provide a `MONGODB_URL` in your `.env`.
 
 ---
 
-## 🐳 Docker (Full Stack)
+## 📁 Project Architecture
 
-```bash
-cp .env.example .env
-docker-compose up --build
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
-```
-
----
-
-## 🔑 Demo Credentials
-
-| Role | Email | Password |
-|------|-------|----------|
-| Business Owner | raj@business.demo | demo1234 |
-| Admin | admin@gst.demo | admin123 |
-| Accountant | priya@accounts.demo | demo1234 |
-
----
-
-## 📁 Project Structure
-
-```
+```text
 gst-management-system/
 ├── frontend/                 # React + Vite SPA
-│   └── PI clients
-│       ├── context/          # Auth contextsrc/
-│       ├── pages/            # Route pages
-│       ├── components/       # Reusable UI components
-│       ├── services/         # Axios A
-│       └── utils/            # Formatters, helpers
-├── backend/
-│   ├── main.py               # FastAPI app entry
-│   └── app/
-│       ├── api/v1/routes/    # REST endpoints
-│       ├── models/           # Beanie MongoDB models
-│       ├── schemas/          # Pydantic request/response schemas
-│       ├── services/         # Business logic layer
-│       ├── ml/
-│       │   ├── invoice_parser/   # OCR + field extraction
-│       │   └── forecasting/      # Prophet/ARIMA model
-│       └── core/             # Config, security, deps
-├── datasets/
-│   └── seed_data.py          # MongoDB seed script
-├── docs/
-│   ├── architecture.md
-│   └── ml-pipeline.md
-├── docker-compose.yml
-└── .env.example
+│   ├── src/
+│   │   ├── components/       # Reusable UI & Layouts
+│   │   ├── pages/            # Feature-specific Page Views
+│   │   ├── services/         # Axios API Integration
+│   │   └── utils/            # Formatters & Business Logic
+├── backend/                  # FastAPI Application
+│   ├── app/
+│   │   ├── api/v1/routes/    # REST Endpoints (Auth, Invoices, Forecast)
+│   │   ├── ml/               # AI Engine (OCR, Forecasting)
+│   │   ├── models/           # Beanie ODM Schema Definitions
+│   │   ├── services/         # Core Business Logic Layer
+│   │   └── core/             # Auth, Security, Config
+├── datasets/                 # Demo Seed Data & Scripts
+└── docs/                     # Technical Handbooks & Screenshots
 ```
 
 ---
 
-## 🔌 API Summary
+## 🔌 API Ecosystem (v1)
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| POST | `/api/v1/auth/register` | Register new user |
-| POST | `/api/v1/auth/login` | Login, returns JWT |
-| GET | `/api/v1/auth/me` | Current user info |
-| GET/POST/PUT | `/api/v1/business/profile` | Business GST profile |
-| POST | `/api/v1/invoices/upload` | Upload + parse invoice |
-| GET | `/api/v1/invoices` | List with pagination/filter |
-| GET | `/api/v1/invoices/{id}` | Invoice detail |
-| PUT | `/api/v1/invoices/{id}/review` | Review & verify invoice |
-| GET | `/api/v1/returns/monthly-summary` | Monthly GST summary |
-| POST | `/api/v1/returns/generate` | Generate return |
-| GET | `/api/v1/forecast/next-month` | Next month prediction |
-| GET | `/api/v1/reports/tax-summary` | Tax summary report |
-
-Full interactive docs at: `http://localhost:8000/docs`
+| Method | Route | Feature |
+|--------|-------|---------|
+| `POST` | `/api/v1/auth/login` | Secure JWT Session Generation |
+| `POST` | `/api/v1/invoices/upload` | Hybrid Parse + Store Document |
+| `GET` | `/api/v1/invoices/export` | Excel Report Generation (.xlsx) |
+| `PUT` | `/api/v1/invoices/{id}/review` | Human-in-the-loop Correction |
+| `GET` | `/api/v1/forecast/next-month` | Predictive Tax Liability |
+| `GET` | `/api/v1/reports/tax-summary` | Real-time Monthly Analytics |
 
 ---
 
-## 🤖 ML Pipeline
+## 🤖 Deep Dive: AI Pipeline
 
-### Invoice Parser
-OCR extracts raw text → Regex rules extract fields → Confidence score assigned  
-**Fallback:** Demo mode generates realistic synthetic data when OCR unavailable
+### Hybrid Invoice Parsing
+The system uses a sophisticated 2-stage extraction process:
+1. **Digital Extraction:** Attempts native text layer extraction using `PyMuPDF` for high speed and 100% accuracy on digital PDFs.
+2. **Vision Extraction:** If the document is an image or scanned PDF, it renders pages as high-DPI images and uses the `RapidOCR` ONNX-powered engine for robust field detection.
 
-### GST Forecasting
-Prophet time-series on monthly returns → confidence interval  
-**Fallback:** ARIMA → Weighted moving average
-
----
-
-## 🏆 Why This Project Stands Out in a Hackathon
-
-1. **Real Problem, Real Solution** — Millions of Indian SMBs struggle with GST compliance. This is practical fintech.
-2. **Full-Stack AI Integration** — Not just a demo; real ML models (Prophet) are actually running.
-3. **Production Architecture** — Service layers, JWT auth, RBAC, async background tasks, Docker-ready.
-4. **Graceful Fallbacks** — Every AI model has a fallback, so it demos reliably on any hardware.
-5. **Next-Gen Premium UI** — A high-end dark-theme dashboard with glassmorphism, fluid micro-animations, real-time charts, and a fully mobile-first responsive engine.
-6. **End-to-End Workflow** — Upload → Parse → Review → Return → Forecast. Full lifecycle.
-7. **Seed Data Ready** — One script gives judges 6 months of realistic invoices to explore.
-8. **Extensible** — Clean service layer; swap OCR model, add cloud storage, or plug in Donut transformer later.
+### Smart Forecasting
+Unlike simple averages, GSTSmart uses **Facebook Prophet** to account for seasonality (e.g., higher sales during festive months) and **ARIMA** for short-term trend validation, providing a confidence interval for next-month tax planning.
 
 ---
 
-## 🔮 Future Improvements
-
-- [ ] Donut/LayoutLM transformer for higher OCR accuracy
-- [ ] WhatsApp/email alerts for status notifications
-- [ ] CSV/PDF export for all reports
-- [ ] GST portal direct filing integration (GSP API)
-- [ ] Multi-business support per account
-- [ ] Model retraining from verified/corrected invoices
-- [ ] Invoice confidence heatmap visualization
-- [ ] GST AI chatbot assistant
-- [ ] Bulk invoice import via ZIP
-- [ ] Audit trail with full changelog view
+## 🔮 Roadmap
+- [ ] Multi-GSTIN corporate support.
+- [ ] GSP direct filing API integration.
+- [ ] T+1 Real-time tax liability alerts.
+- [ ] Bulk invoice ZIP processing.
