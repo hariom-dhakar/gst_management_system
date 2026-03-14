@@ -6,26 +6,30 @@
 
 ### Pipeline
 1. Receive file path (PDF or image)
-2. If PDF: convert first page to image using `pdf2image`
-3. OCR the image: EasyOCR (preferred) → pytesseract → demo fallback
-4. Apply regex rules to extract structured fields
-5. Return JSON with confidence score
+2. **Stage 1: Digital Text Extraction** - Attempt PyMuPDF text extraction (fast, 100% accurate if digital text exists)
+3. **Stage 2: OCR Fallback** - If no digital text, render PDF to 250 DPI image and use RapidOCR (ONNX Runtime)
+4. **Stage 3: LLM Structuring** - Pass raw text to Groq Llama-3.3-70b for context-aware field extraction with JSON schema
+5. Apply regex rules to extract additional fields if needed
+6. Return JSON with confidence score
 
 ### Fields Extracted
+Primary extraction via LLM (Groq Llama-3.3-70b) with regex fallbacks:
+
 | Field | Extraction Method |
 |-------|-------------------|
-| Invoice Number | Regex: `INVOICE NO[:\s]*([\w\-/]+)` |
-| Date | Regex: `\d{1,2}[/-]\d{1,2}[/-]\d{2,4}` |
-| GSTIN | Regex: 15-char GSTIN pattern |
-| Amounts | Regex: `RS\.?\s*([\d,]+\.?\d*)` |
-| Tax (CGST/SGST/IGST) | Regex: labeled amounts |
-| HSN/SAC | Regex: `HSN[:\s]*(\d{4,8})` |
+| Invoice Number | LLM + Regex: `INVOICE NO[:\s]*([\w\-/]+)` |
+| Date | LLM + Regex: `\d{1,2}[/-]\d{1,2}[/-]\d{2,4}` |
+| GSTIN | LLM + Regex: 15-char GSTIN pattern |
+| Amounts | LLM + Regex: `RS\.?\s*([\d,]+\.?\d*)` |
+| Tax (CGST/SGST/IGST) | LLM + labeled amounts parsing |
+| HSN/SAC | LLM + Regex: `HSN[:\s]*(\d{4,8})` |
+| Supplier/Buyer Details | LLM context understanding |
 
 ### Confidence Score
-Calculated as `0.50 + 0.05 * fields_found` — higher when more fields are extracted.
+Calculated as `0.50 + 0.05 * fields_found` — higher when more fields are extracted successfully. LLM provides structured output with validation.
 
-### Demo Mode
-When OCR fails (e.g., no tesseract installed), a deterministic demo invoice is generated based on the file hash, ensuring consistent results for the same file.
+### Error Handling
+If OCR or LLM fails, the system logs the error and marks the invoice as "parsed" with available data. Users can manually review and correct fields through the UI.
 
 ---
 
@@ -69,8 +73,9 @@ When OCR fails (e.g., no tesseract installed), a deterministic demo invoice is g
 - Provides prediction + simple confidence interval
 
 ### Weighted Moving Average (Last Resort)
-- Simple weighted average of historical values
-- Used when neither Prophet nor statsmodels is available
+- Simple weighted average of recent historical GST liability values
+- Used when neither Prophet nor ARIMA is available
+- Provides basic prediction without confidence intervals
 
 ### Trend Detection
 Compares last 3 months average vs all prior months:

@@ -27,7 +27,8 @@ GSTSmart is a full-stack AI-powered GST compliance platform built as a monorepo 
 │  ┌──────────────────────▼──────────────────────────────────┐   │
 │  │                    ML Pipeline                           │   │
 │  │  invoice_parser │ fraud_detection │ forecasting          │   │
-│  │  (OCR+regex)    │ (IsolationForest│ (Prophet/ARIMA)      │   │
+│  │  (hybrid OCR+LLM│ (IsolationForest│ (Prophet/ARIMA)      │   │
+│  │  +regex)        │ +rules)         │ +WMA fallback)        │   │
 │  └──────────────────────┬──────────────────────────────────┘   │
 └───────────────────────── │──────────────────────────────────────┘
                            │
@@ -43,11 +44,13 @@ GSTSmart is a full-stack AI-powered GST compliance platform built as a monorepo 
 
 ```
 Upload → Store File → Background Task:
-  1. OCR / Text Extraction (EasyOCR → pytesseract → demo fallback)
-  2. Field Extraction (regex pattern matching on raw text)
-  3. GST Calculation (intra/inter-state classification)
-  4. Fraud Detection (rule-based + Isolation Forest)
-  5. Status Update → Notify frontend
+  1. Digital Text Extraction (PyMuPDF - fast if digital text exists)
+  2. OCR Fallback (if no digital text: render to 250 DPI image + RapidOCR)
+  3. LLM Structuring (raw text → Groq Llama-3.3-70b → JSON schema validation)
+  4. Field Extraction (regex on structured text)
+  5. GST Calculation (intra/inter-state classification)
+  6. Fraud Detection (rule-based + Isolation Forest)
+  7. Status Update → Notify frontend
 ```
 
 ## Authentication Flow
@@ -63,6 +66,7 @@ Role check: admin > accountant > business_owner
 - **Beanie ODM** over raw pymongo for clean async MongoDB models
 - **Background tasks** (FastAPI native) over Celery for simplicity
 - **Fallback-first ML** — every ML model has a rule-based fallback so the app runs on any hardware
+- **Hybrid OCR Pipeline** — PyMuPDF digital text → RapidOCR → LLM structuring (Groq Llama-3.3-70b)
 - **Isolation Forest** trained on synthetic normal data at startup (no separate training step)
-- **Prophet with ARIMA fallback** for time-series forecasting
+- **Prophet with ARIMA and WMA fallbacks** for time-series forecasting
 - **Demo data** — seeded on first run so judges see real data immediately
